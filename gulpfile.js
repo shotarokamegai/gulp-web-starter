@@ -16,7 +16,8 @@ var gulp = require('gulp'),
  * 2. FILE DESTINATIONS (RELATIVE TO ASSSETS FOLDER)
 ------------------------------------------------------------------------------*/
 var bsOpt = {
-  'port':       3000
+  'browser':    "google chrome canary"
+, 'port':       3000
 , 'proxy':      'wordpress.dev'
 , 'proxy':      false
 , 'tunnel':     'randomstring23232'  // Subdomains must be between 4 and 20 alphanumeric characters.
@@ -76,6 +77,8 @@ gulp.task('foundation-init', function() {
 
 gulp.task('browser-sync', function() {
   var args = {};
+  args.browser = bsOpt.browser;
+  args.open = true;
   if (bsOpt.proxy == false) {
     args.server = { baseDir: paths.dest };
     args.startPath = paths.htmlDest;
@@ -84,8 +87,9 @@ gulp.task('browser-sync', function() {
     args.open = 'external';
   }
   if (bsOpt.tunnel != false) {
-    args.tunnel = bsOpt.tunnel
+    args.tunnel = bsOpt.tunnel;
   }
+  // end opts
   browserSync(args);
 });
 
@@ -179,14 +183,45 @@ gulp.task('image-min', function() {
     .pipe(browserSync.reload({ stream: true }));
 });
 
-gulp.task('sprite', function () {
-  var spriteData = gulp.src(paths.imgDir + '/sprite/*.png')
-  .pipe($.spritesmith({
-    imgName: paths.imgDest + '/sprite.png',
-    cssName: '_m-sprite.scss'
-  }));
-  spriteData.img.pipe(gulp.dest('./'));
-  spriteData.css.pipe(gulp.dest(paths.scssDir + '/module'));
+gulp.task('sprite-sprite', function () {
+  var args = {
+    mode: "sprite",
+    cssFile: "css/sprite.css",
+    svg: {
+      sprite: "svg/sprite.svg"
+    },
+    svgPath: "/assets/svg/sprite.svg",
+    preview: {
+      sprite: "sprite.html"
+    }
+  }
+  var $_filter = $.filter('**/*.css');
+  return gulp.src('src/svg/sprite/*.svg')
+    .pipe($.svgSprites(args))
+    .pipe(gulp.dest('assets'))
+    .pipe($_filter)
+    .pipe($.flatten())
+    .pipe($.rename({ prefix: '_m-', extname: '.scss' }))
+    .pipe(gulp.dest('src/scss/module'))
+    .pipe($_filter.restore());
+});
+
+gulp.task('sprite-symbols', function () {
+  var args = {
+    mode: "symbols"
+  }
+  return gulp.src('src/svg/sprite/*.svg')
+    .pipe($.svgSprites(args))
+    .pipe(gulp.dest('assets'));
+});
+
+gulp.task('sprite-defs', function () {
+  var args = {
+    mode: "defs"
+  }
+  return gulp.src('src/svg/sprite/*.svg')
+    .pipe($.svgSprites(args))
+    .pipe(gulp.dest('assets'));
 });
 
 /*------------------------------------------------------------------------------

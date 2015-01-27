@@ -30,8 +30,8 @@
     "gulp-rename": "latest",
     "gulp-ruby-sass": "latest",
     "gulp-sourcemaps": "latest",
+    "gulp-svg-sprites": "^1.1.0",
     "gulp-uglify": "latest",
-    "gulp.spritesmith": "latest",
     "main-bower-files": "latest",
     "uglify-save-license": "latest"
   }
